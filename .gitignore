@@ -1,0 +1,20 @@
+# Build outputs and local SDKs
+bin/
+obj/
+.tools/
+tools/**/bin/
+tools/**/obj/
+
+# Local user state, caches, logs, and encrypted credentials
+config/
+data/
+cache/
+logs/
+secrets/
+
+# IDE and OS files
+.vs/
+.idea/
+*.user
+Thumbs.db
+Desktop.ini
