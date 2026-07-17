@@ -62,7 +62,7 @@ public static class WidgetTheme
         var profile = Profile(kind);
         var blur = Math.Clamp(settings.BlurPercent / 100d, 0, 1);
         var opacity = Math.Clamp(settings.OpacityPercent / 100d, 0, 1);
-        var alpha = (byte)Math.Clamp(Math.Round(255 * (0.015 + profile.Reflection * 1.55 * blur) * opacity), 0, 255);
+        var alpha = (byte)Math.Clamp(Math.Round(255 * (0.018 + profile.Reflection * 2.25 * blur) * opacity), 0, 255);
         return IsDark(settings)
             ? new LinearGradientBrush(
                 new GradientStopCollection
@@ -123,10 +123,10 @@ public static class WidgetTheme
         IsDark(settings) ? Color.FromRgb(7, 14, 25) : Color.FromRgb(15, 23, 42);
 
     public static Brush PrimaryBrush(AppSettings settings) =>
-        new SolidColorBrush(IsDark(settings) ? Color.FromArgb(238, 241, 247, 246) : Color.FromArgb(232, 27, 46, 48));
+        new SolidColorBrush(IsDark(settings) ? Color.FromArgb(248, 241, 247, 246) : Color.FromArgb(244, 24, 40, 43));
 
     public static Brush SecondaryBrush(AppSettings settings) =>
-        new SolidColorBrush(IsDark(settings) ? Color.FromArgb(178, 196, 214, 216) : Color.FromArgb(166, 54, 74, 78));
+        new SolidColorBrush(IsDark(settings) ? Color.FromArgb(205, 207, 223, 224) : Color.FromArgb(196, 42, 62, 67));
 
     public static Brush AccentBrush(AppSettings settings) =>
         new SolidColorBrush(IsDark(settings) ? Color.FromRgb(207, 235, 248) : Color.FromRgb(224, 242, 253));
@@ -142,10 +142,10 @@ public static class WidgetTheme
 
     private static GlassProfile Profile(WidgetKind kind) => kind switch
     {
-        WidgetKind.Clock => new GlassProfile(0.18, 0.31, 0.065, 0.38, 0.13),
-        WidgetKind.Weather => new GlassProfile(0.24, 0.34, 0.085, 0.44, 0.16),
-        WidgetKind.Calendar => new GlassProfile(0.225, 0.33, 0.075, 0.42, 0.15),
-        _ => new GlassProfile(0.22, 0.32, 0.075, 0.40, 0.15)
+        WidgetKind.Clock => new GlassProfile(0.23, 0.31, 0.065, 0.38, 0.13),
+        WidgetKind.Weather => new GlassProfile(0.32, 0.34, 0.085, 0.44, 0.16),
+        WidgetKind.Calendar => new GlassProfile(0.30, 0.33, 0.075, 0.42, 0.15),
+        _ => new GlassProfile(0.28, 0.32, 0.075, 0.40, 0.15)
     };
 
     private static byte MaterialAlpha(double alpha, AppSettings settings)
