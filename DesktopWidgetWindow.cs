@@ -49,7 +49,7 @@ public sealed class DesktopWidgetWindow : Window
             Padding = Kind == WidgetKind.Clock ? new Thickness(0) : new Thickness(16)
         };
         _glassDiffusion = new Border { IsHitTestVisible = false };
-        _wallpaperBackdrop = new Border { IsHitTestVisible = false, Opacity = 0.92 };
+        _wallpaperBackdrop = new Border { IsHitTestVisible = false };
         _glassHighlight = new Border { IsHitTestVisible = false };
         _glassReflection = new Border { IsHitTestVisible = false };
         var layers = new Grid();
@@ -129,6 +129,7 @@ public sealed class DesktopWidgetWindow : Window
         var radius = WidgetTheme.WallpaperBlurRadius(_state.Settings);
         var overscan = Math.Max(8, radius * 1.25);
         _wallpaperBackdrop.Margin = new Thickness(-overscan);
+        _wallpaperBackdrop.Opacity = WidgetTheme.WallpaperBackdropOpacity(_state.Settings);
         _wallpaperBackdrop.Background = WidgetTheme.WallpaperBackdropBrush(this, overscan);
         _wallpaperBackdrop.Effect = radius > 0
             ? new BlurEffect { Radius = radius, RenderingBias = RenderingBias.Quality }

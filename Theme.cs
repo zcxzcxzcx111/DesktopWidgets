@@ -37,9 +37,9 @@ public static class WidgetTheme
             : new LinearGradientBrush(
                 new GradientStopCollection
                 {
-                    new(Color.FromArgb((byte)(alpha * 1.03), 237, 246, 249), 0),
-                    new(Color.FromArgb((byte)(alpha * 0.78), 195, 214, 222), 0.48),
-                    new(Color.FromArgb((byte)(alpha * 0.88), 146, 170, 183), 1)
+                    new(Color.FromArgb((byte)(alpha * 1.03), 225, 238, 243), 0),
+                    new(Color.FromArgb((byte)(alpha * 0.78), 174, 198, 208), 0.48),
+                    new(Color.FromArgb((byte)(alpha * 0.88), 112, 143, 158), 1)
                 }, new Point(0.04, 0), new Point(0.96, 1));
     }
 
@@ -78,9 +78,9 @@ public static class WidgetTheme
             : new LinearGradientBrush(
                 new GradientStopCollection
                 {
-                    new(Color.FromArgb(alpha, 229, 240, 242), 0),
-                    new(Color.FromArgb((byte)(alpha * 0.72), 198, 214, 218), 0.52),
-                    new(Color.FromArgb((byte)(alpha * 0.42), 169, 187, 192), 1)
+                    new(Color.FromArgb(alpha, 213, 228, 233), 0),
+                    new(Color.FromArgb((byte)(alpha * 0.72), 171, 193, 203), 0.52),
+                    new(Color.FromArgb((byte)(alpha * 0.42), 118, 149, 164), 1)
                 }, new Point(0.1, 0), new Point(0.94, 1));
     }
 
@@ -89,6 +89,12 @@ public static class WidgetTheme
 
     public static double WallpaperBlurRadius(AppSettings settings) =>
         Math.Clamp(settings.BlurPercent / 100d, 0, 1) * 64;
+
+    public static double WallpaperBackdropOpacity(AppSettings settings)
+    {
+        var opacity = Math.Clamp(settings.OpacityPercent / 100d, 0, 1);
+        return 0.98 - opacity * 0.28;
+    }
 
     public static Brush? WallpaperBackdropBrush(Window window, double overscan)
     {
@@ -198,10 +204,10 @@ public static class WidgetTheme
 
     private static GlassProfile Profile(WidgetKind kind) => kind switch
     {
-        WidgetKind.Clock => new GlassProfile(0.17, 0.28, 0.040, 0.35, 0.12),
-        WidgetKind.Weather => new GlassProfile(0.21, 0.30, 0.055, 0.38, 0.14),
-        WidgetKind.Calendar => new GlassProfile(0.20, 0.29, 0.050, 0.37, 0.13),
-        _ => new GlassProfile(0.19, 0.29, 0.050, 0.36, 0.13)
+        WidgetKind.Clock => new GlassProfile(0.24, 0.28, 0.040, 0.35, 0.12),
+        WidgetKind.Weather => new GlassProfile(0.32, 0.30, 0.055, 0.38, 0.14),
+        WidgetKind.Calendar => new GlassProfile(0.30, 0.29, 0.050, 0.37, 0.13),
+        _ => new GlassProfile(0.28, 0.29, 0.050, 0.36, 0.13)
     };
 
     private static byte MaterialAlpha(double alpha, AppSettings settings)
