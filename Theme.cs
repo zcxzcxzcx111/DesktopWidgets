@@ -33,9 +33,9 @@ public static class WidgetTheme
             : new LinearGradientBrush(
                 new GradientStopCollection
                 {
-                    new(Color.FromArgb((byte)(alpha * 1.03), 248, 252, 255), 0),
-                    new(Color.FromArgb((byte)(alpha * 0.78), 204, 221, 232), 0.48),
-                    new(Color.FromArgb((byte)(alpha * 0.88), 151, 177, 195), 1)
+                    new(Color.FromArgb((byte)(alpha * 1.03), 237, 246, 249), 0),
+                    new(Color.FromArgb((byte)(alpha * 0.78), 195, 214, 222), 0.48),
+                    new(Color.FromArgb((byte)(alpha * 0.88), 146, 170, 183), 1)
                 }, new Point(0.04, 0), new Point(0.96, 1));
     }
 
@@ -74,9 +74,9 @@ public static class WidgetTheme
             : new LinearGradientBrush(
                 new GradientStopCollection
                 {
-                    new(Color.FromArgb(alpha, 239, 248, 254), 0),
-                    new(Color.FromArgb((byte)(alpha * 0.70), 202, 222, 235), 0.52),
-                    new(Color.FromArgb((byte)(alpha * 0.42), 162, 190, 207), 1)
+                    new(Color.FromArgb(alpha, 220, 236, 241), 0),
+                    new(Color.FromArgb((byte)(alpha * 0.70), 183, 205, 214), 0.52),
+                    new(Color.FromArgb((byte)(alpha * 0.42), 139, 167, 180), 1)
                 }, new Point(0.1, 0), new Point(0.94, 1));
     }
 
@@ -89,9 +89,9 @@ public static class WidgetTheme
         return new RadialGradientBrush(
             new GradientStopCollection
             {
-                new(Color.FromArgb(alpha, 123, 188, 230), 0),
-                new(Color.FromArgb((byte)(alpha * 0.38), 149, 211, 218), 0.36),
-                new(Color.FromArgb(0, 145, 203, 230), 1)
+                new(Color.FromArgb(alpha, 150, 184, 200), 0),
+                new(Color.FromArgb((byte)(alpha * 0.38), 165, 202, 204), 0.36),
+                new(Color.FromArgb(0, 158, 191, 202), 1)
             })
         {
             Center = new Point(0.91, 0.87),
