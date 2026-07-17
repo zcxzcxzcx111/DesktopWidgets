@@ -19,7 +19,11 @@ public static class WidgetTheme
     public static Brush CardBrush(AppSettings settings)
     {
         var opacity = settings.OpacityPercent / 100d;
-        var alpha = (byte)Math.Clamp(opacity * 190, 0, 224);
+        // A transparent WPF window cannot use the native acrylic compositor
+        // once it is placed in the desktop layer. Use the blur setting to
+        // control the density of the frosted surface instead: lower values
+        // leave more of the wallpaper visible, higher values diffuse it.
+        var alpha = Alpha(opacity * 190, settings);
         return IsDark(settings)
             ? new LinearGradientBrush(
                 new GradientStopCollection
@@ -35,6 +39,13 @@ public static class WidgetTheme
                     new(Color.FromArgb((byte)(alpha * 0.62), 151, 180, 204), 0.46),
                     new(Color.FromArgb((byte)(alpha * 0.80), 104, 133, 160), 1)
                 }, new Point(0.04, 0), new Point(0.96, 1));
+    }
+
+    private static byte Alpha(double value, AppSettings settings)
+    {
+        var blur = Math.Clamp(settings.BlurPercent / 100d, 0, 1);
+        var frostDensity = 0.18 + blur * 0.82;
+        return (byte)Math.Clamp(Math.Round(value * frostDensity), 0, 224);
     }
 
     public static Brush GlassHighlightBrush(AppSettings settings) => new RadialGradientBrush(
