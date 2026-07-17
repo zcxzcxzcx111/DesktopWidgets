@@ -62,7 +62,7 @@ public static class WidgetTheme
         var profile = Profile(kind);
         var blur = Math.Clamp(settings.BlurPercent / 100d, 0, 1);
         var opacity = Math.Clamp(settings.OpacityPercent / 100d, 0, 1);
-        var alpha = (byte)Math.Clamp(Math.Round(255 * (0.018 + profile.Reflection * 2.25 * blur) * opacity), 0, 255);
+        var alpha = (byte)Math.Clamp(Math.Round(255 * (0.025 + profile.Reflection * 2.85 * blur) * opacity), 0, 255);
         return IsDark(settings)
             ? new LinearGradientBrush(
                 new GradientStopCollection
@@ -81,7 +81,7 @@ public static class WidgetTheme
     }
 
     public static double FrostDiffusionRadius(AppSettings settings) =>
-        4 + Math.Clamp(settings.BlurPercent / 100d, 0, 1) * 24;
+        6 + Math.Clamp(settings.BlurPercent / 100d, 0, 1) * 34;
 
     public static Brush GlassReflectionBrush(AppSettings settings, WidgetKind kind)
     {
