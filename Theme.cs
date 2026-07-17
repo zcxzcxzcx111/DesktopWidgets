@@ -175,9 +175,11 @@ public static class WidgetTheme
         return new LinearGradientBrush(
             new GradientStopCollection
             {
-                new(Color.FromArgb(alpha, 255, 255, 255), 0),
-                new(Color.FromArgb((byte)(alpha * 0.56), 223, 242, 251), 0.43),
-                new(Color.FromArgb((byte)(alpha * 0.32), 202, 225, 239), 1)
+                new(Color.FromArgb((byte)(alpha * 1.18), 255, 255, 255), 0),
+                new(Color.FromArgb((byte)(alpha * 0.92), 245, 252, 255), 0.16),
+                new(Color.FromArgb((byte)(alpha * 0.48), 211, 235, 244), 0.48),
+                new(Color.FromArgb((byte)(alpha * 0.22), 184, 213, 227), 0.78),
+                new(Color.FromArgb((byte)(alpha * 0.12), 169, 198, 214), 1)
             }, new Point(0, 0), new Point(1, 1));
     }
 
