@@ -49,9 +49,9 @@ public sealed class DesktopWidgetWindow : Window
         _glassHighlight = new Border { IsHitTestVisible = false };
         _glassReflection = new Border { IsHitTestVisible = false };
         var layers = new Grid();
-        layers.Children.Add(_contentSurface);
         layers.Children.Add(_glassHighlight);
         layers.Children.Add(_glassReflection);
+        layers.Children.Add(_contentSurface);
         _card = new Border { Child = layers };
         _editOutline = new Border
         {
@@ -91,13 +91,13 @@ public sealed class DesktopWidgetWindow : Window
 
     public void ApplyAppearance()
     {
-        _card.Background = WidgetTheme.CardBrush(_state.Settings);
-        _card.BorderBrush = WidgetTheme.GlassEdgeBrush(_state.Settings);
+        _card.Background = WidgetTheme.CardBrush(_state.Settings, Kind);
+        _card.BorderBrush = WidgetTheme.GlassEdgeBrush(_state.Settings, Kind);
         _card.BorderThickness = new Thickness(1);
         _card.CornerRadius = WidgetTheme.Radius(Size);
-        _glassHighlight.Background = WidgetTheme.GlassHighlightBrush(_state.Settings);
+        _glassHighlight.Background = WidgetTheme.GlassHighlightBrush(_state.Settings, Kind);
         _glassHighlight.CornerRadius = WidgetTheme.Radius(Size);
-        _glassReflection.Background = WidgetTheme.GlassReflectionBrush(_state.Settings);
+        _glassReflection.Background = WidgetTheme.GlassReflectionBrush(_state.Settings, Kind);
         _glassReflection.CornerRadius = WidgetTheme.Radius(Size);
         _editOutline.CornerRadius = WidgetTheme.Radius(Size);
         Opacity = 1;
@@ -119,11 +119,11 @@ public sealed class DesktopWidgetWindow : Window
             Color = WidgetTheme.ShadowColor(_state.Settings),
             BlurRadius = active ? 26 : 21,
             ShadowDepth = active ? 8 : 6,
-            Opacity = active ? 0.52 : 0.38,
+            Opacity = WidgetTheme.ShadowOpacity(_state.Settings, Kind, active),
             Direction = 270
         };
-        _glassHighlight.Opacity = active ? 0.98 : 0.78;
-        _glassReflection.Opacity = active ? 0.82 : 0.62;
+        _glassHighlight.Opacity = active ? 1 : 0.86;
+        _glassReflection.Opacity = active ? 0.96 : 0.78;
     }
 
     public void SetEditMode(bool enabled)
