@@ -62,7 +62,7 @@ public static class WidgetTheme
         var profile = Profile(kind);
         var blur = Math.Clamp(settings.BlurPercent / 100d, 0, 1);
         var opacity = Math.Clamp(settings.OpacityPercent / 100d, 0, 1);
-        var alpha = (byte)Math.Clamp(Math.Round(255 * (0.025 + profile.Reflection * 2.85 * blur) * opacity), 0, 255);
+        var alpha = (byte)Math.Clamp(Math.Round(255 * (0.018 + profile.Reflection * 1.75 * blur) * opacity), 0, 255);
         return IsDark(settings)
             ? new LinearGradientBrush(
                 new GradientStopCollection
@@ -81,7 +81,7 @@ public static class WidgetTheme
     }
 
     public static double FrostDiffusionRadius(AppSettings settings) =>
-        6 + Math.Clamp(settings.BlurPercent / 100d, 0, 1) * 34;
+        8 + Math.Clamp(settings.BlurPercent / 100d, 0, 1) * 56;
 
     public static Brush GlassReflectionBrush(AppSettings settings, WidgetKind kind)
     {
@@ -142,10 +142,10 @@ public static class WidgetTheme
 
     private static GlassProfile Profile(WidgetKind kind) => kind switch
     {
-        WidgetKind.Clock => new GlassProfile(0.23, 0.31, 0.065, 0.38, 0.13),
-        WidgetKind.Weather => new GlassProfile(0.32, 0.34, 0.085, 0.44, 0.16),
-        WidgetKind.Calendar => new GlassProfile(0.30, 0.33, 0.075, 0.42, 0.15),
-        _ => new GlassProfile(0.28, 0.32, 0.075, 0.40, 0.15)
+        WidgetKind.Clock => new GlassProfile(0.20, 0.31, 0.065, 0.38, 0.13),
+        WidgetKind.Weather => new GlassProfile(0.27, 0.34, 0.085, 0.44, 0.16),
+        WidgetKind.Calendar => new GlassProfile(0.255, 0.33, 0.075, 0.42, 0.15),
+        _ => new GlassProfile(0.25, 0.32, 0.075, 0.40, 0.15)
     };
 
     private static byte MaterialAlpha(double alpha, AppSettings settings)
