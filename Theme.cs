@@ -81,7 +81,7 @@ public static class WidgetTheme
     }
 
     public static double FrostDiffusionRadius(AppSettings settings) =>
-        2 + Math.Clamp(settings.BlurPercent / 100d, 0, 1) * 12;
+        4 + Math.Clamp(settings.BlurPercent / 100d, 0, 1) * 24;
 
     public static Brush GlassReflectionBrush(AppSettings settings, WidgetKind kind)
     {
