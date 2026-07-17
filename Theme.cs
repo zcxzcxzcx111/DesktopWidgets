@@ -84,10 +84,10 @@ public static class WidgetTheme
     }
 
     public static double FrostDiffusionRadius(AppSettings settings) =>
-        Math.Clamp(settings.BlurPercent / 100d, 0, 1) * 1000;
+        Math.Clamp(settings.BlurPercent / 100d, 0, 1) * 20;
 
     public static double WallpaperBlurRadius(AppSettings settings) =>
-        Math.Clamp(settings.BlurPercent / 100d, 0, 1) * 64;
+        Math.Clamp(settings.BlurPercent / 100d, 0, 1) * 20;
 
     public static double ColorUnderlayOpacity(AppSettings settings) =>
         Math.Clamp(settings.OpacityPercent / 100d, 0, 1);
