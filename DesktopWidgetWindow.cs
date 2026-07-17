@@ -3,8 +3,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
-using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 namespace DesktopWidgets;
 
@@ -14,7 +12,6 @@ public sealed class DesktopWidgetWindow : Window
     private readonly DesktopWidgetManager _manager;
     private readonly Border _card;
     private readonly Border _contentSurface;
-    private readonly Image _desktopBackdrop;
     private readonly Border _glassDiffusion;
     private readonly Border _glassHighlight;
     private readonly Border _glassReflection;
@@ -26,7 +23,6 @@ public sealed class DesktopWidgetWindow : Window
     private Point _lastLegalPosition;
     private double? _snapX;
     private double? _snapY;
-    private bool _capturingBackdrop;
     public WidgetKind Kind { get; }
     public WidgetSize Size => _state.GetLayout(Kind).Size;
 
@@ -54,9 +50,7 @@ public sealed class DesktopWidgetWindow : Window
         _glassDiffusion = new Border { IsHitTestVisible = false };
         _glassHighlight = new Border { IsHitTestVisible = false };
         _glassReflection = new Border { IsHitTestVisible = false };
-        _desktopBackdrop = new Image { IsHitTestVisible = false, Stretch = Stretch.Fill };
         var layers = new Grid();
-        layers.Children.Add(_desktopBackdrop);
         layers.Children.Add(_glassDiffusion);
         layers.Children.Add(_glassHighlight);
         layers.Children.Add(_glassReflection);
@@ -78,11 +72,7 @@ public sealed class DesktopWidgetWindow : Window
             if (!App.IsPreviewMode) NativeDesktop.ConfigureWidgetWindow(this, _state.Settings, true);
             else NativeDesktop.ApplyBlur(this, _state.Settings);
         };
-        Loaded += (_, _) =>
-        {
-            _manager.EnsureWidgetsStayOnDesktop();
-            Dispatcher.BeginInvoke(RefreshDesktopBackdropAsync, DispatcherPriority.Loaded);
-        };
+        Loaded += (_, _) => _manager.EnsureWidgetsStayOnDesktop();
         Deactivated += (_, _) => _manager.EnsureWidgetsStayOnDesktop();
         MouseLeftButtonDown += OnMouseLeftButtonDown;
         MouseMove += OnMouseMove;
@@ -108,11 +98,6 @@ public sealed class DesktopWidgetWindow : Window
         _card.BorderBrush = WidgetTheme.GlassEdgeBrush(_state.Settings, Kind);
         _card.BorderThickness = new Thickness(1);
         _card.CornerRadius = WidgetTheme.Radius(Size);
-        _desktopBackdrop.Effect = new BlurEffect
-        {
-            Radius = WidgetTheme.BackdropBlurRadius(_state.Settings),
-            RenderingBias = RenderingBias.Quality
-        };
         _glassDiffusion.Background = WidgetTheme.FrostDiffusionBrush(_state.Settings, Kind);
         _glassDiffusion.CornerRadius = WidgetTheme.Radius(Size);
         _glassDiffusion.Effect = new BlurEffect
@@ -195,57 +180,8 @@ public sealed class DesktopWidgetWindow : Window
         _dragging = false;
         _snapX = _snapY = null;
         ReleaseMouseCapture();
-        if (dragged)
-        {
-            _manager.SnapAndSave(this);
-            _ = RefreshDesktopBackdropAsync();
-        }
+        if (dragged) _manager.SnapAndSave(this);
         _manager.EnsureWidgetsStayOnDesktop();
-    }
-
-    private async Task RefreshDesktopBackdropAsync()
-    {
-        if (App.IsPreviewMode || _capturingBackdrop || !IsVisible || ActualWidth < 1 || ActualHeight < 1) return;
-        _capturingBackdrop = true;
-        var originalOpacity = Opacity;
-        try
-        {
-            // Hide only this HWND for one render pass, then sample the wallpaper
-            // directly underneath it. The resulting bitmap becomes a visual-only
-            // layer below the card and can be genuinely blurred without softening
-            // any widget content.
-            Opacity = 0;
-            await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Render);
-
-            var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-            var dpi = NativeDpi.GetDpi(hwnd) / 96d;
-            var width = Math.Max(1, (int)Math.Ceiling(ActualWidth * dpi));
-            var height = Math.Max(1, (int)Math.Ceiling(ActualHeight * dpi));
-            var x = (int)Math.Round(Left * dpi);
-            var y = (int)Math.Round(Top * dpi);
-            using var bitmap = new System.Drawing.Bitmap(width, height);
-            using (var graphics = System.Drawing.Graphics.FromImage(bitmap))
-                graphics.CopyFromScreen(x, y, 0, 0, new System.Drawing.Size(width, height));
-            using var stream = new MemoryStream();
-            bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-            stream.Position = 0;
-            var source = new BitmapImage();
-            source.BeginInit();
-            source.CacheOption = BitmapCacheOption.OnLoad;
-            source.StreamSource = stream;
-            source.EndInit();
-            source.Freeze();
-            _desktopBackdrop.Source = source;
-        }
-        catch (Exception ex)
-        {
-            AppLog.Write("Desktop backdrop capture failed", ex);
-        }
-        finally
-        {
-            Opacity = originalOpacity;
-            _capturingBackdrop = false;
-        }
     }
 
     private void CancelDrag()
