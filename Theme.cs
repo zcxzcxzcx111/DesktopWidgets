@@ -57,6 +57,32 @@ public static class WidgetTheme
         };
     }
 
+    public static Brush FrostDiffusionBrush(AppSettings settings, WidgetKind kind)
+    {
+        var profile = Profile(kind);
+        var blur = Math.Clamp(settings.BlurPercent / 100d, 0, 1);
+        var opacity = Math.Clamp(settings.OpacityPercent / 100d, 0, 1);
+        var alpha = (byte)Math.Clamp(Math.Round(255 * (0.015 + profile.Reflection * 1.55 * blur) * opacity), 0, 255);
+        return IsDark(settings)
+            ? new LinearGradientBrush(
+                new GradientStopCollection
+                {
+                    new(Color.FromArgb(alpha, 26, 38, 52), 0),
+                    new(Color.FromArgb((byte)(alpha * 0.70), 29, 47, 62), 0.52),
+                    new(Color.FromArgb((byte)(alpha * 0.42), 17, 31, 43), 1)
+                }, new Point(0.1, 0), new Point(0.94, 1))
+            : new LinearGradientBrush(
+                new GradientStopCollection
+                {
+                    new(Color.FromArgb(alpha, 239, 248, 254), 0),
+                    new(Color.FromArgb((byte)(alpha * 0.70), 202, 222, 235), 0.52),
+                    new(Color.FromArgb((byte)(alpha * 0.42), 162, 190, 207), 1)
+                }, new Point(0.1, 0), new Point(0.94, 1));
+    }
+
+    public static double FrostDiffusionRadius(AppSettings settings) =>
+        2 + Math.Clamp(settings.BlurPercent / 100d, 0, 1) * 12;
+
     public static Brush GlassReflectionBrush(AppSettings settings, WidgetKind kind)
     {
         var alpha = MaterialAlpha(Profile(kind).Reflection, settings);
@@ -125,7 +151,8 @@ public static class WidgetTheme
     private static byte MaterialAlpha(double alpha, AppSettings settings)
     {
         var opacity = Math.Clamp(settings.OpacityPercent / 100d, 0, 1);
-        var blurDensity = 0.30 + Math.Clamp(settings.BlurPercent / 100d, 0, 1) * 0.70;
+        var blur = Math.Clamp(settings.BlurPercent / 100d, 0, 1);
+        var blurDensity = 0.10 + blur * blur * 0.90;
         return (byte)Math.Clamp(Math.Round(255 * alpha * opacity * blurDensity), 0, 255);
     }
 }

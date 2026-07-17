@@ -12,6 +12,7 @@ public sealed class DesktopWidgetWindow : Window
     private readonly DesktopWidgetManager _manager;
     private readonly Border _card;
     private readonly Border _contentSurface;
+    private readonly Border _glassDiffusion;
     private readonly Border _glassHighlight;
     private readonly Border _glassReflection;
     private readonly Border _editOutline;
@@ -46,9 +47,11 @@ public sealed class DesktopWidgetWindow : Window
             // full card canvas enlarges the face without changing the glass card.
             Padding = Kind == WidgetKind.Clock ? new Thickness(0) : new Thickness(16)
         };
+        _glassDiffusion = new Border { IsHitTestVisible = false };
         _glassHighlight = new Border { IsHitTestVisible = false };
         _glassReflection = new Border { IsHitTestVisible = false };
         var layers = new Grid();
+        layers.Children.Add(_glassDiffusion);
         layers.Children.Add(_glassHighlight);
         layers.Children.Add(_glassReflection);
         layers.Children.Add(_contentSurface);
@@ -95,6 +98,13 @@ public sealed class DesktopWidgetWindow : Window
         _card.BorderBrush = WidgetTheme.GlassEdgeBrush(_state.Settings, Kind);
         _card.BorderThickness = new Thickness(1);
         _card.CornerRadius = WidgetTheme.Radius(Size);
+        _glassDiffusion.Background = WidgetTheme.FrostDiffusionBrush(_state.Settings, Kind);
+        _glassDiffusion.CornerRadius = WidgetTheme.Radius(Size);
+        _glassDiffusion.Effect = new BlurEffect
+        {
+            Radius = WidgetTheme.FrostDiffusionRadius(_state.Settings),
+            RenderingBias = RenderingBias.Quality
+        };
         _glassHighlight.Background = WidgetTheme.GlassHighlightBrush(_state.Settings, Kind);
         _glassHighlight.CornerRadius = WidgetTheme.Radius(Size);
         _glassReflection.Background = WidgetTheme.GlassReflectionBrush(_state.Settings, Kind);
@@ -124,6 +134,7 @@ public sealed class DesktopWidgetWindow : Window
         };
         _glassHighlight.Opacity = active ? 1 : 0.86;
         _glassReflection.Opacity = active ? 0.96 : 0.78;
+        _glassDiffusion.Opacity = active ? 1 : 0.92;
     }
 
     public void SetEditMode(bool enabled)
