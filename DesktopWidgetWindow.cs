@@ -34,9 +34,7 @@ public sealed class DesktopWidgetWindow : Window
         Title = Kind.ToString();
         WindowStyle = WindowStyle.None;
         ResizeMode = ResizeMode.NoResize;
-        // DWM system backdrops require a non-layered HWND. Rounded transparency
-        // is provided by the native window region instead.
-        AllowsTransparency = false;
+        AllowsTransparency = true;
         Background = Brushes.Transparent;
         ShowInTaskbar = App.IsPreviewMode;
         ShowActivated = false;

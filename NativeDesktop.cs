@@ -10,9 +10,6 @@ internal static class NativeDesktop
     private const int GwlExStyle = -20;
     private const long WsExToolWindow = 0x00000080L;
     private const long WsExNoActivate = 0x08000000L;
-    private const int DwmwaSystemBackdropType = 38;
-    private const int DwmsbtNone = 1;
-    private const int DwmsbtTransientWindow = 3;
 
     public static void ConfigureWidgetWindow(System.Windows.Window window, AppSettings settings, bool attachToDesktop = true)
     {
@@ -27,15 +24,9 @@ internal static class NativeDesktop
     {
         var hwnd = new WindowInteropHelper(window).Handle;
         if (hwnd == IntPtr.Zero) return;
-
-        if (Environment.OSVersion.Version.Build >= 22621)
-        {
-            var margins = new Margins(-1, -1, -1, -1);
-            DwmExtendFrameIntoClientArea(hwnd, ref margins);
-            var backdrop = settings.BlurPercent > 0 ? DwmsbtTransientWindow : DwmsbtNone;
-            DwmSetWindowAttribute(hwnd, DwmwaSystemBackdropType, ref backdrop, sizeof(int));
-        }
-
+        // Accent composition fills the rectangular HWND or clears WPF's
+        // per-pixel alpha after reparenting to the desktop. Keep composition
+        // entirely in WPF and use only a native rounded window region.
         ApplyRoundedRegion(window);
     }
 
@@ -58,18 +49,6 @@ internal static class NativeDesktop
         var diameter = Math.Max(2, (int)Math.Round(radius * 2 * dpi));
         var region = CreateRoundRectRgn(0, 0, width + 1, height + 1, diameter, diameter);
         if (region != IntPtr.Zero) SetWindowRgn(hwnd, region, true);
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private readonly struct Margins
-    {
-        public readonly int Left;
-        public readonly int Right;
-        public readonly int Top;
-        public readonly int Bottom;
-
-        public Margins(int left, int right, int top, int bottom) =>
-            (Left, Right, Top, Bottom) = (left, right, top, bottom);
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -145,10 +124,6 @@ internal static class NativeDesktop
         uint flags, uint timeout, out IntPtr result);
     [DllImport("user32.dll")]
     private static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
-    [DllImport("dwmapi.dll")]
-    private static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref Margins margins);
-    [DllImport("dwmapi.dll")]
-    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
     [DllImport("gdi32.dll")]
     private static extern IntPtr CreateRoundRectRgn(int left, int top, int right, int bottom, int width, int height);
     [DllImport("user32.dll")]
