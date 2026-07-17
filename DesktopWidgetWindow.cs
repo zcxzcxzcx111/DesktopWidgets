@@ -13,6 +13,7 @@ public sealed class DesktopWidgetWindow : Window
     private readonly Border _card;
     private readonly Border _contentSurface;
     private readonly Border _wallpaperBackdrop;
+    private readonly Border _colorUnderlay;
     private readonly Border _glassDiffusion;
     private readonly Border _glassHighlight;
     private readonly Border _glassReflection;
@@ -50,10 +51,12 @@ public sealed class DesktopWidgetWindow : Window
         };
         _glassDiffusion = new Border { IsHitTestVisible = false };
         _wallpaperBackdrop = new Border { IsHitTestVisible = false };
+        _colorUnderlay = new Border { IsHitTestVisible = false };
         _glassHighlight = new Border { IsHitTestVisible = false };
         _glassReflection = new Border { IsHitTestVisible = false };
         var layers = new Grid();
         layers.Children.Add(_wallpaperBackdrop);
+        layers.Children.Add(_colorUnderlay);
         layers.Children.Add(_glassDiffusion);
         layers.Children.Add(_glassHighlight);
         layers.Children.Add(_glassReflection);
@@ -106,6 +109,9 @@ public sealed class DesktopWidgetWindow : Window
         _card.BorderThickness = new Thickness(1);
         _card.CornerRadius = WidgetTheme.Radius(Size);
         ApplyWallpaperBackdrop();
+        _colorUnderlay.Background = WidgetTheme.ColorUnderlayBrush(_state.Settings);
+        _colorUnderlay.Opacity = WidgetTheme.ColorUnderlayOpacity(_state.Settings);
+        _colorUnderlay.CornerRadius = WidgetTheme.Radius(Size);
         _glassDiffusion.Background = WidgetTheme.FrostDiffusionBrush(_state.Settings, Kind);
         _glassDiffusion.CornerRadius = WidgetTheme.Radius(Size);
         _glassDiffusion.Effect = new BlurEffect
@@ -129,7 +135,7 @@ public sealed class DesktopWidgetWindow : Window
         var radius = WidgetTheme.WallpaperBlurRadius(_state.Settings);
         var overscan = Math.Max(8, radius * 1.25);
         _wallpaperBackdrop.Margin = new Thickness(-overscan);
-        _wallpaperBackdrop.Opacity = WidgetTheme.WallpaperBackdropOpacity(_state.Settings);
+        _wallpaperBackdrop.Opacity = 1;
         _wallpaperBackdrop.Background = WidgetTheme.WallpaperBackdropBrush(this, overscan);
         _wallpaperBackdrop.Effect = radius > 0
             ? new BlurEffect { Radius = radius, RenderingBias = RenderingBias.Quality }

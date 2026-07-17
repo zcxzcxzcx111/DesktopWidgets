@@ -65,8 +65,7 @@ public static class WidgetTheme
     {
         var profile = Profile(kind);
         var blur = Math.Clamp(settings.BlurPercent / 100d, 0, 1);
-        var opacity = Math.Clamp(settings.OpacityPercent / 100d, 0, 1);
-        var alpha = (byte)Math.Clamp(Math.Round(255 * (0.018 + profile.Fill * 0.50 * blur) * opacity), 0, 255);
+        var alpha = (byte)Math.Clamp(Math.Round(255 * (0.018 + profile.Fill * 0.50 * blur)), 0, 255);
         return IsDark(settings)
             ? new LinearGradientBrush(
                 new GradientStopCollection
@@ -90,11 +89,18 @@ public static class WidgetTheme
     public static double WallpaperBlurRadius(AppSettings settings) =>
         Math.Clamp(settings.BlurPercent / 100d, 0, 1) * 64;
 
-    public static double WallpaperBackdropOpacity(AppSettings settings)
-    {
-        var opacity = Math.Clamp(settings.OpacityPercent / 100d, 0, 1);
-        return 0.98 - opacity * 0.28;
-    }
+    public static double ColorUnderlayOpacity(AppSettings settings) =>
+        Math.Clamp(settings.OpacityPercent / 100d, 0, 1);
+
+    public static Brush ColorUnderlayBrush(AppSettings settings) => IsDark(settings)
+        ? new LinearGradientBrush(
+            Color.FromRgb(43, 56, 70),
+            Color.FromRgb(17, 25, 36),
+            new Point(0.05, 0), new Point(0.95, 1))
+        : new LinearGradientBrush(
+            Color.FromRgb(132, 158, 170),
+            Color.FromRgb(77, 108, 124),
+            new Point(0.05, 0), new Point(0.95, 1));
 
     public static Brush? WallpaperBackdropBrush(Window window, double overscan)
     {
@@ -177,7 +183,7 @@ public static class WidgetTheme
 
     public static double ShadowOpacity(AppSettings settings, WidgetKind kind, bool active)
     {
-        var baseOpacity = Profile(kind).Shadow * Math.Clamp(settings.OpacityPercent / 100d, 0.2, 1);
+        var baseOpacity = Profile(kind).Shadow;
         return Math.Clamp(baseOpacity + (active ? 0.035 : 0), 0.08, 0.20);
     }
 
@@ -212,9 +218,8 @@ public static class WidgetTheme
 
     private static byte MaterialAlpha(double alpha, AppSettings settings)
     {
-        var opacity = Math.Clamp(settings.OpacityPercent / 100d, 0, 1);
         var blur = Math.Clamp(settings.BlurPercent / 100d, 0, 1);
         var blurDensity = 0.40 + blur * 0.60;
-        return (byte)Math.Clamp(Math.Round(255 * alpha * opacity * blurDensity), 0, 255);
+        return (byte)Math.Clamp(Math.Round(255 * alpha * blurDensity), 0, 255);
     }
 }
