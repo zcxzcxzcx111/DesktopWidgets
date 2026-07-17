@@ -23,10 +23,13 @@ public sealed class DesktopWidgetManager : IDisposable
         Microsoft.Win32.SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
     }
 
-    private void OnUserPreferenceChanged(object? sender, Microsoft.Win32.UserPreferenceChangedEventArgs e)
+    private async void OnUserPreferenceChanged(object? sender, Microsoft.Win32.UserPreferenceChangedEventArgs e)
     {
         if (e.Category != Microsoft.Win32.UserPreferenceCategory.Desktop) return;
-        System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+        // Windows raises the notification before the shell has always committed
+        // the new wallpaper path. Wait briefly, then perform one fresh redraw.
+        await Task.Delay(350);
+        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
         {
             WidgetTheme.InvalidateWallpaperCache();
             foreach (var window in _windows.Values.Where(window => window.IsVisible))
