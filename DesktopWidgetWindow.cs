@@ -12,6 +12,7 @@ public sealed class DesktopWidgetWindow : Window
     private readonly DesktopWidgetManager _manager;
     private readonly Border _card;
     private readonly Border _contentSurface;
+    private readonly Border _wallpaperBackdrop;
     private readonly Border _glassDiffusion;
     private readonly Border _glassHighlight;
     private readonly Border _glassReflection;
@@ -48,9 +49,11 @@ public sealed class DesktopWidgetWindow : Window
             Padding = Kind == WidgetKind.Clock ? new Thickness(0) : new Thickness(16)
         };
         _glassDiffusion = new Border { IsHitTestVisible = false };
+        _wallpaperBackdrop = new Border { IsHitTestVisible = false, Opacity = 0.92 };
         _glassHighlight = new Border { IsHitTestVisible = false };
         _glassReflection = new Border { IsHitTestVisible = false };
         var layers = new Grid();
+        layers.Children.Add(_wallpaperBackdrop);
         layers.Children.Add(_glassDiffusion);
         layers.Children.Add(_glassHighlight);
         layers.Children.Add(_glassReflection);
@@ -72,7 +75,11 @@ public sealed class DesktopWidgetWindow : Window
             if (!App.IsPreviewMode) NativeDesktop.ConfigureWidgetWindow(this, _state.Settings, true);
             else NativeDesktop.ApplyBlur(this, _state.Settings);
         };
-        Loaded += (_, _) => _manager.EnsureWidgetsStayOnDesktop();
+        Loaded += (_, _) =>
+        {
+            _manager.EnsureWidgetsStayOnDesktop();
+            ApplyWallpaperBackdrop();
+        };
         Deactivated += (_, _) => _manager.EnsureWidgetsStayOnDesktop();
         MouseLeftButtonDown += OnMouseLeftButtonDown;
         MouseMove += OnMouseMove;
@@ -98,6 +105,7 @@ public sealed class DesktopWidgetWindow : Window
         _card.BorderBrush = WidgetTheme.GlassEdgeBrush(_state.Settings, Kind);
         _card.BorderThickness = new Thickness(1);
         _card.CornerRadius = WidgetTheme.Radius(Size);
+        ApplyWallpaperBackdrop();
         _glassDiffusion.Background = WidgetTheme.FrostDiffusionBrush(_state.Settings, Kind);
         _glassDiffusion.CornerRadius = WidgetTheme.Radius(Size);
         _glassDiffusion.Effect = new BlurEffect
@@ -114,6 +122,18 @@ public sealed class DesktopWidgetWindow : Window
         SetGlassInteraction(IsMouseOver);
         NativeDesktop.ApplyBlur(this, _state.Settings);
         RebuildContent();
+    }
+
+    private void ApplyWallpaperBackdrop()
+    {
+        var radius = WidgetTheme.WallpaperBlurRadius(_state.Settings);
+        var overscan = Math.Max(8, radius * 1.25);
+        _wallpaperBackdrop.Margin = new Thickness(-overscan);
+        _wallpaperBackdrop.Background = WidgetTheme.WallpaperBackdropBrush(this, overscan);
+        _wallpaperBackdrop.Effect = radius > 0
+            ? new BlurEffect { Radius = radius, RenderingBias = RenderingBias.Quality }
+            : null;
+        _wallpaperBackdrop.CornerRadius = WidgetTheme.Radius(Size);
     }
 
     public void RebuildContent()
@@ -180,7 +200,11 @@ public sealed class DesktopWidgetWindow : Window
         _dragging = false;
         _snapX = _snapY = null;
         ReleaseMouseCapture();
-        if (dragged) _manager.SnapAndSave(this);
+        if (dragged)
+        {
+            _manager.SnapAndSave(this);
+            ApplyWallpaperBackdrop();
+        }
         _manager.EnsureWidgetsStayOnDesktop();
     }
 

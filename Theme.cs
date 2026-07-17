@@ -1,11 +1,15 @@
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Interop;
 
 namespace DesktopWidgets;
 
 public static class WidgetTheme
 {
     private readonly record struct GlassProfile(double Fill, double Highlight, double Reflection, double Edge, double Shadow);
+    private static string? _cachedWallpaperPath;
+    private static BitmapSource? _cachedWallpaper;
 
     public static readonly FontFamily UiFont = new("Segoe UI Variable, Microsoft YaHei UI");
 
@@ -62,7 +66,7 @@ public static class WidgetTheme
         var profile = Profile(kind);
         var blur = Math.Clamp(settings.BlurPercent / 100d, 0, 1);
         var opacity = Math.Clamp(settings.OpacityPercent / 100d, 0, 1);
-        var alpha = (byte)Math.Clamp(Math.Round(255 * (0.12 + profile.Fill * 2.80 * blur) * opacity), 0, 255);
+        var alpha = (byte)Math.Clamp(Math.Round(255 * (0.018 + profile.Fill * 0.50 * blur) * opacity), 0, 255);
         return IsDark(settings)
             ? new LinearGradientBrush(
                 new GradientStopCollection
@@ -82,6 +86,58 @@ public static class WidgetTheme
 
     public static double FrostDiffusionRadius(AppSettings settings) =>
         Math.Clamp(settings.BlurPercent / 100d, 0, 1) * 1000;
+
+    public static double WallpaperBlurRadius(AppSettings settings) =>
+        Math.Clamp(settings.BlurPercent / 100d, 0, 1) * 64;
+
+    public static Brush? WallpaperBackdropBrush(Window window, double overscan)
+    {
+        var hwnd = new WindowInteropHelper(window).Handle;
+        if (hwnd == IntPtr.Zero) return null;
+        var path = Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\Control Panel\Desktop", "WallPaper", null) as string;
+        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path)) return null;
+
+        if (_cachedWallpaper == null || !string.Equals(_cachedWallpaperPath, path, StringComparison.OrdinalIgnoreCase))
+        {
+            var image = new BitmapImage();
+            image.BeginInit();
+            image.CacheOption = BitmapCacheOption.OnLoad;
+            image.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+            image.UriSource = new Uri(path, UriKind.Absolute);
+            image.EndInit();
+            image.Freeze();
+            _cachedWallpaperPath = path;
+            _cachedWallpaper = image;
+        }
+
+        var dpi = NativeDpi.GetDpi(hwnd) / 96d;
+        var screen = System.Windows.Forms.Screen.FromHandle(hwnd);
+        var screenLeft = screen.Bounds.Left / dpi;
+        var screenTop = screen.Bounds.Top / dpi;
+        var screenWidth = screen.Bounds.Width / dpi;
+        var screenHeight = screen.Bounds.Height / dpi;
+        var sourceWidth = _cachedWallpaper.PixelWidth;
+        var sourceHeight = _cachedWallpaper.PixelHeight;
+        var scale = Math.Max(screenWidth / sourceWidth, screenHeight / sourceHeight);
+        var renderedWidth = sourceWidth * scale;
+        var renderedHeight = sourceHeight * scale;
+        var renderedLeft = screenLeft + (screenWidth - renderedWidth) / 2;
+        var renderedTop = screenTop + (screenHeight - renderedHeight) / 2;
+
+        var viewbox = new Rect(
+            Math.Max(0, (window.Left - overscan - renderedLeft) / scale),
+            Math.Max(0, (window.Top - overscan - renderedTop) / scale),
+            Math.Min(sourceWidth, (window.Width + overscan * 2) / scale),
+            Math.Min(sourceHeight, (window.Height + overscan * 2) / scale));
+        return new ImageBrush(_cachedWallpaper)
+        {
+            ViewboxUnits = BrushMappingMode.Absolute,
+            Viewbox = viewbox,
+            Stretch = Stretch.Fill,
+            AlignmentX = AlignmentX.Left,
+            AlignmentY = AlignmentY.Top
+        };
+    }
 
     public static Brush GlassReflectionBrush(AppSettings settings, WidgetKind kind)
     {
@@ -142,10 +198,10 @@ public static class WidgetTheme
 
     private static GlassProfile Profile(WidgetKind kind) => kind switch
     {
-        WidgetKind.Clock => new GlassProfile(0.32, 0.28, 0.040, 0.35, 0.12),
-        WidgetKind.Weather => new GlassProfile(0.42, 0.30, 0.055, 0.38, 0.14),
-        WidgetKind.Calendar => new GlassProfile(0.39, 0.29, 0.050, 0.37, 0.13),
-        _ => new GlassProfile(0.37, 0.29, 0.050, 0.36, 0.13)
+        WidgetKind.Clock => new GlassProfile(0.17, 0.28, 0.040, 0.35, 0.12),
+        WidgetKind.Weather => new GlassProfile(0.21, 0.30, 0.055, 0.38, 0.14),
+        WidgetKind.Calendar => new GlassProfile(0.20, 0.29, 0.050, 0.37, 0.13),
+        _ => new GlassProfile(0.19, 0.29, 0.050, 0.36, 0.13)
     };
 
     private static byte MaterialAlpha(double alpha, AppSettings settings)
