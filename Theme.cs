@@ -89,6 +89,12 @@ public static class WidgetTheme
     public static double WallpaperBlurRadius(AppSettings settings) =>
         Math.Clamp(settings.BlurPercent / 100d, 0, 1) * 20;
 
+    public static void InvalidateWallpaperCache()
+    {
+        _cachedWallpaperPath = null;
+        _cachedWallpaper = null;
+    }
+
     public static double ColorUnderlayOpacity(AppSettings settings) =>
         Math.Clamp(settings.OpacityPercent / 100d, 0, 1);
 

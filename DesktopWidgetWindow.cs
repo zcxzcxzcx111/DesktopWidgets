@@ -149,6 +149,8 @@ public sealed class DesktopWidgetWindow : Window
         _wallpaperBackdrop.CornerRadius = WidgetTheme.Radius(Size);
     }
 
+    public void RefreshWallpaperBackdrop() => ApplyWallpaperBackdrop();
+
     public void RebuildContent()
     {
         _contentSurface.Child = WidgetFactory.Create(Kind, Size, _state, _manager);

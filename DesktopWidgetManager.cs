@@ -20,6 +20,18 @@ public sealed class DesktopWidgetManager : IDisposable
         StartupService.SetEnabled(_state.Settings.StartWithWindows);
         ApplyEnabledWidgets();
         _state.SettingsChanged += OnSettingsChanged;
+        Microsoft.Win32.SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
+    }
+
+    private void OnUserPreferenceChanged(object? sender, Microsoft.Win32.UserPreferenceChangedEventArgs e)
+    {
+        if (e.Category != Microsoft.Win32.UserPreferenceCategory.Desktop) return;
+        System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+        {
+            WidgetTheme.InvalidateWallpaperCache();
+            foreach (var window in _windows.Values.Where(window => window.IsVisible))
+                window.RefreshWallpaperBackdrop();
+        });
     }
 
     private void CreateTray()
@@ -276,6 +288,7 @@ public sealed class DesktopWidgetManager : IDisposable
     public void Dispose()
     {
         _state.SettingsChanged -= OnSettingsChanged;
+        Microsoft.Win32.SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
         foreach (var window in _windows.Values.ToArray()) window.Close();
         _windows.Clear();
         if (_tray != null) { _tray.Visible = false; _tray.Dispose(); }
