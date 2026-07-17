@@ -17,6 +17,7 @@ public sealed class DesktopWidgetWindow : Window
     private readonly Border _glassDiffusion;
     private readonly Border _glassHighlight;
     private readonly Border _glassReflection;
+    private readonly Border _glassEdgeSheen;
     private readonly Border _editOutline;
     private bool _dragArmed;
     private bool _dragging;
@@ -54,6 +55,7 @@ public sealed class DesktopWidgetWindow : Window
         _colorUnderlay = new Border { IsHitTestVisible = false };
         _glassHighlight = new Border { IsHitTestVisible = false };
         _glassReflection = new Border { IsHitTestVisible = false };
+        _glassEdgeSheen = new Border { IsHitTestVisible = false };
         var layers = new Grid();
         layers.Children.Add(_wallpaperBackdrop);
         layers.Children.Add(_colorUnderlay);
@@ -61,6 +63,7 @@ public sealed class DesktopWidgetWindow : Window
         layers.Children.Add(_glassHighlight);
         layers.Children.Add(_glassReflection);
         layers.Children.Add(_contentSurface);
+        layers.Children.Add(_glassEdgeSheen);
         _card = new Border { Child = layers };
         _editOutline = new Border
         {
@@ -123,6 +126,9 @@ public sealed class DesktopWidgetWindow : Window
         _glassHighlight.CornerRadius = WidgetTheme.Radius(Size);
         _glassReflection.Background = WidgetTheme.GlassReflectionBrush(_state.Settings, Kind);
         _glassReflection.CornerRadius = WidgetTheme.Radius(Size);
+        _glassEdgeSheen.BorderBrush = WidgetTheme.GlassEdgeBrush(_state.Settings, Kind);
+        _glassEdgeSheen.BorderThickness = new Thickness(1.6);
+        _glassEdgeSheen.CornerRadius = WidgetTheme.Radius(Size);
         _editOutline.CornerRadius = WidgetTheme.Radius(Size);
         Opacity = 1;
         SetGlassInteraction(IsMouseOver);
@@ -161,6 +167,7 @@ public sealed class DesktopWidgetWindow : Window
         };
         _glassHighlight.Opacity = active ? 1 : 0.86;
         _glassReflection.Opacity = active ? 0.96 : 0.78;
+        _glassEdgeSheen.Opacity = active ? 1 : 0.9;
         _glassDiffusion.Opacity = active ? 1 : 0.92;
     }
 

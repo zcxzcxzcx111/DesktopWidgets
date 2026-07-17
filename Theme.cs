@@ -171,7 +171,7 @@ public static class WidgetTheme
 
     public static Brush GlassEdgeBrush(AppSettings settings, WidgetKind kind)
     {
-        var alpha = MaterialAlpha(Profile(kind).Edge, settings);
+        var alpha = (byte)Math.Clamp(MaterialAlpha(Profile(kind).Edge, settings) + 72, 0, 220);
         return new LinearGradientBrush(
             new GradientStopCollection
             {
